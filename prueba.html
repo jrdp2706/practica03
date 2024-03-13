@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>App de Preguntas</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            margin: 20px;
+            background-color: #f2f2f2;
+        }
+        .card {
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            max-width: 400px;
+            margin: auto;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        #result-container {
+            font-weight: bold;
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 10px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        button {
+            margin-top: 10px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .correct-answer {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .incorrect-answer {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        #timer-container {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #007bff;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<script>
+    // Solicitar el nombre del usuario mediante una ventana emergente
+    const userName = prompt("Por favor, ingresa tu nombre:");
+    if (userName === null || userName === "") {
+        alert("Nombre no proporcionado. La aplicación continuará con un nombre predeterminado.");
+    }
+</script>
+
+<div class="container">
+    <div class="jumbotron">
+        <h1 class="display-4">App de Preguntas</h1>
+        <p class="lead">Responde las siguientes preguntas para evaluar tus conocimientos, ${userName || "Usuario"}.</p>
+    </div>
+
+    <div id="quiz-container"></div>
+    <button class="btn btn-primary" onclick="startQuiz()">Comenzar Quiz</button>
+
+    <div id="result-container"></div>
+</div>
+
+<script>
+    const quizContainer = document.getElementById("quiz-container");
+    const resultContainer = document.getElementById("result-container");
+
+    const questions = [
+        {
+            question: "¿Cuál es la capital de Italia?",
+            options: ["Madrid", "Roma", "París"],
+            correctAnswer: "Roma"
+        },
+        {
+            question: "¿Cuántos planetas hay en nuestro sistema solar?",
+            options: ["8", "9", "10"],
+            correctAnswer: "8"
+        },
+        // Agrega más preguntas según sea necesario
+    ];
+
+    let currentQuestion = 0;
+    let score = 0;
+    let startTime;
+    let endTime;
+
+    function startQuiz() {
+        startTime = new Date().getTime();
+        showNextQuestion();
+    }
+
+    function showNextQuestion() {
+        if (currentQuestion < questions.length) {
+            const currentQ = questions[currentQuestion];
+            const card = createQuestionCard(currentQ);
+
+            const timerDiv = document.createElement("div");
+            timerDiv.id = "timer-container";
+            card.appendChild(timerDiv);
+
+            card.appendChild(createOptions(currentQ.options));
+
+            const nextButton = document.createElement("button");
+            nextButton.textContent = "Siguiente Pregunta";
+            nextButton.onclick = () => {
+                calculateScore(currentQ.options);
+                currentQuestion++;
+                quizContainer.innerHTML = "";
+                showNextQuestion();
+            };
+
+            quizContainer.appendChild(card);
+            quizContainer.appendChild(nextButton);
+
+            startTimer(timerDiv);
+        } else {
+            endTime = new Date().getTime();
+            clearInterval(timer);
+            showResults();
+        }
+    }
+
+    function createQuestionCard(question) {
+        const card = document.createElement("div");
+        card.classList.add("card");
+        card.innerHTML = `<h2>${question.question}</h2>`;
+        return card;
+    }
+
+    function createOptions(options) {
+        const optionsContainer = document.createElement("div");
+
+        options.forEach((option, index) => {
+            const radioBtn = document.createElement("input");
+            radioBtn.type = "radio";
+            radioBtn.name = "answer";
+            radioBtn.value = option;
+            radioBtn.id = `option${index}`;
+
+            const label = document.createElement("label");
+            label.textContent = option;
+            label.htmlFor = `option${index}`;
+
+            optionsContainer.appendChild(radioBtn);
+            optionsContainer.appendChild(label);
+            optionsContainer.appendChild(document.createElement("br"));
+        });
+
+        return optionsContainer;
+    }
+
+    function startTimer(timerDiv) {
+        const timeRemaining = 300 - Math.floor((new Date().getTime() - startTime) / 1000);
+        timer = setInterval(() => {
+            const minutes = Math.floor(timeRemaining / 60);
+            const seconds = timeRemaining % 60;
+            timerDiv.textContent = `Tiempo restante: ${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+            if (timeRemaining === 0) {
+                clearInterval(timer);
+                showResults();
+            } else {
+                timeRemaining--;
+            }
+        }, 1000);
+    }
+
+    function calculateScore(options) {
+        const selectedAnswer = document.querySelector('input[name="answer"]:checked');
+        if (selectedAnswer && selectedAnswer.value === options[options.length - 1]) {
+            score++;
+        }
+    }
+
+    function showResults() {
+        const scorePercentage = (score / questions.length) * 100;
+        const elapsedTime = (endTime - startTime) / 1000; // en segundos
+        resultContainer.innerHTML = `<h2>Resultado Final</h2>
+            <p>Tu puntuación es: ${score} de ${questions.length} preguntas correctas (${scorePercentage}%)</p>
+            <p>Tiempo total: ${elapsedTime} segundos</p>`;
+    }
+</script>
+
+</body>
+</html>

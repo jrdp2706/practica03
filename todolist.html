@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Tareas Pro</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            margin: 50px;
+            background-color: #f7f7f7;
+        }
+
+        h2 {
+            color: #333;
+        }
+
+        #taskInput {
+            width: 300px;
+            padding: 10px;
+            font-size: 16px;
+            margin-right: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            outline: none;
+        }
+
+        #addButton {
+            padding: 10px;
+            font-size: 16px;
+            background-color: #4caf50;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        #taskList {
+            list-style-type: none;
+            padding: 0;
+            margin: 20px 0;
+        }
+
+        .taskItem {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border: 1px solid #ddd;
+            background-color: #fff;
+            padding: 15px;
+            margin: 10px 0;
+            transition: background-color 0.3s;
+        }
+
+        .taskItem:hover {
+            background-color: #f0f0f0;
+        }
+
+        .taskItem button {
+            padding: 10px;
+            font-size: 14px;
+            background-color: #e74c3c;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .taskItem button:hover {
+            background-color: #e91700;
+        }
+
+        .completed {
+            text-decoration: line-through;
+            color: #0de6a5;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Lista de Tareas Pro</h2>
+<div>
+    <input type="text" id="taskInput" placeholder="Nueva tarea">
+    <button id="addButton" onclick="addTask()">Agregar</button>
+</div>
+
+<ul id="taskList"></ul>
+
+<script>
+    let tasks = [];
+
+    function renderTasks() {
+        const taskList = document.getElementById('taskList');
+        taskList.innerHTML = '';
+
+        tasks.forEach((task, index) => {
+            const taskItem = document.createElement('li');
+            taskItem.className = `taskItem ${task.completed ? 'completed' : ''}`;
+            taskItem.innerHTML = `
+                <span>${task.text}</span>
+                <button onclick="completeTask(${index})">Completar</button>
+                <button onclick="removeTask(${index})">Eliminar</button>
+            `;
+
+            taskList.appendChild(taskItem);
+        });
+    }
+
+    function addTask() {
+        const taskInput = document.getElementById('taskInput');
+        const taskText = taskInput.value.trim();
+
+        if (taskText !== '') {
+            tasks.push({ text: taskText, completed: false });
+            taskInput.value = '';
+            renderTasks();
+        }
+    }
+
+    function completeTask(index) {
+        tasks[index].completed = !tasks[index].completed;
+        renderTasks();
+    }
+
+    function removeTask(index) {
+        tasks.splice(index, 1);
+        renderTasks();
+    }
+
+    // Renderizar las tareas iniciales (por si acaso)
+    renderTasks();
+</script>
+
+</body>
+</html>
